@@ -1,0 +1,8 @@
+{
+  "name": "KWG Arena — Gaming & Wallet Platform",
+  "description": "Play KWG Game and curated interactive titles with personal PIN protection, dynamic UPI wallet deposits, complete activity history, and full admin management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
