@@ -97,6 +97,36 @@ export class ApiError extends Error {
   }
 }
 
+export function resolveAssetUrl(rawUrl: string | null | undefined): string {
+  const val = String(rawUrl || '').trim();
+  if (!val) return '';
+  if (
+    val.startsWith('http://') ||
+    val.startsWith('https://') ||
+    val.startsWith('data:') ||
+    val.startsWith('blob:') ||
+    val.startsWith('./')
+  ) {
+    return val;
+  }
+  const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL || './';
+  const cleanBase = base.endsWith('/') ? base : `${base}/`;
+  if (val.startsWith('/src/assets/') || val.startsWith('/assets/')) {
+    return `${cleanBase}${val.replace(/^\/+/, '')}`;
+  }
+  return val;
+}
+
+export function resolveApiUrl(url: string): string {
+  if (!url.startsWith('/api/')) return url;
+  const apiBase = String(
+    (import.meta as { env?: { VITE_API_BASE_URL?: string } }).env?.VITE_API_BASE_URL || ''
+  )
+    .trim()
+    .replace(/\/+$/, '');
+  return apiBase ? `${apiBase}${url}` : url;
+}
+
 export async function apiRequest<T>(
   url: string,
   options: RequestInit = {}
@@ -133,11 +163,13 @@ export async function apiRequest<T>(
   const maxAttempts = isIdempotentEndpoint ? 2 : 1;
   const timeoutMs = isAiPredict ? 34000 : 16000;
 
+  const resolvedUrl = resolveApiUrl(url);
+
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
     try {
-      res = await fetch(url, {
+      res = await fetch(resolvedUrl, {
         ...options,
         credentials: 'include',
         headers,
@@ -192,6 +224,7 @@ export async function apiRequest<T>(
     }
     let errorMessage = String(data.error || `Request failed (${res.status})`);
     if (jsonParseFailed) {
+      data = { ...data, isStaticHtml: true };
       if (res.status === 413) {
         errorMessage = 'Uploaded payload is too large. Please use a smaller file or image.';
       } else {

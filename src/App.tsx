@@ -27,11 +27,13 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import {
+  ApiError,
   apiRequest,
   formatCurrency,
   formatDateTime,
   getTelegramDisplayHandle,
   normalizeTelegramSupportUrl,
+  resolveAssetUrl,
   setAuthToken,
   setOnBannedHandler,
 } from './api';
@@ -96,6 +98,191 @@ function getStoredTermsAcceptedAt(): string | null {
     return null;
   }
 }
+
+const STATIC_PUBLIC_GAMES: GameSummary[] = [
+  {
+    id: 1,
+    slug: 'kwg-game',
+    name: 'KWG Game',
+    title: 'KWG Game — VIP Mod Menu & AI Predictor',
+    description:
+      'Play KWG Game directly on the website with its floating VIP MOD button, Wingo 1M BIG/SMALL predictor, 1-5 level amount splitter, and WIN/LOSS tracking.',
+    thumbnail: '/src/assets/images/kwg_game_thumb_1795541883618.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://kwgbet9.com/#/register?invitationCode=5440231Z27',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'cyber-cyan',
+      clockMode: 'ist-standard',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: true,
+    isUnlocked: true,
+    created_at: '',
+  },
+  {
+    id: 2,
+    slug: 'yaarwin',
+    name: 'Yaarwin',
+    title: 'Yaarwin — Wingo 1M Green Mod Menu',
+    description:
+      'Play Yaarwin directly with Wingo 1M period-matched predictions, green neon VIP scanner, 1–5 level amount splitting, and settled WIN/LOSS history.',
+    thumbnail: '/src/assets/images/yaarwin_game_thumb_1795543874891.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://9yaarwin.com/#/register?invitationCode=14342839592',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'neon-green',
+      clockMode: 'utc-partner-api',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: false,
+    isUnlocked: true,
+    created_at: '',
+  },
+  {
+    id: 3,
+    slug: 'tg-dream',
+    name: 'TG Dream',
+    title: 'TG Dream — Wingo 1M High-Blue Mod Menu',
+    description:
+      'Play TG Dream directly with Wingo 1M period-matched predictions, ultra high-blue VIP scanner, 1–5 level amount splitting, and settled WIN/LOSS history.',
+    thumbnail: '/src/assets/images/tgdream_game_thumb_1795543876158.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://tgdream.pro/#/register?invitationCode=688182170541',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'high-blue',
+      clockMode: 'utc-partner-api',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: false,
+    isUnlocked: true,
+    created_at: '',
+  },
+  {
+    id: 4,
+    slug: 'jai-club',
+    name: 'Jai Club',
+    title: 'Jai Club — Wingo 1M Spectrum Mod Menu',
+    description:
+      'Play Jai Club directly with Wingo 1M period-matched predictions, purple-blue-green-pink spectrum VIP scanner, 1–5 level splitting, and WIN/LOSS history.',
+    thumbnail: '/src/assets/images/jaiclub_game_thumb_1795543875717.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://www.jaiclub37.com/#/register?invitationCode=768697903172',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'spectrum',
+      clockMode: 'utc-partner-api',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: false,
+    isUnlocked: true,
+    created_at: '',
+  },
+  {
+    id: 5,
+    slug: 'dm-play',
+    name: 'DM Play',
+    title: 'DM Play — Wingo 1M Red Mod Menu',
+    description:
+      'Play DM Play directly with Wingo 1M period-matched predictions, crimson red VIP scanner, 1–5 level amount splitting, and settled WIN/LOSS history.',
+    thumbnail: '/src/assets/images/dmplay_game_thumb_1795543876360.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://www.dmplay20.com/#/register?invitationCode=28529901096',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'crimson-red',
+      clockMode: 'utc-partner-api',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: false,
+    isUnlocked: true,
+    created_at: '',
+  },
+  {
+    id: 6,
+    slug: 'khelv-888',
+    name: 'Khelv 888',
+    title: 'Khelv 888 — Wingo 1M Red-Blue Mod Menu',
+    description:
+      'Play Khelv 888 directly with Wingo 1M period-matched predictions, red & blue dual-tone VIP scanner, 1–5 level splitting, and WIN/LOSS history.',
+    thumbnail: '/src/assets/images/khelv_game_thumb_1795543879088.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://www.khelv888.com/#/register?invitationCode=14924615668',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'red-blue',
+      clockMode: 'utc-partner-api',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: false,
+    isUnlocked: true,
+    created_at: '',
+  },
+  {
+    id: 7,
+    slug: '9k-club',
+    name: '9K Club',
+    title: '9K Club — Wingo 1M & 30S Royal Gold Mod Menu',
+    description:
+      'Play 9K Club directly with Wingo 1M & 30S period-matched predictions, Royal VIP Gold scanner, 1–5 level amount splitting, and settled WIN/LOSS history.',
+    thumbnail: '/src/assets/images/9kclub_game_thumb_1795773250892.jpg',
+    pricing_type: 'free',
+    price: 0,
+    billing_mode: 'once',
+    gameMode: 'embed',
+    embedUrl: 'https://9kclub3.com/register?inviteCode=NADAXFN&from=web',
+    modMenuConfig: {
+      enabled: true,
+      menuType: 'wingo-full',
+      themePreset: 'royal-gold',
+      clockMode: 'utc-partner-api',
+      showLevelSplit: true,
+      showManualHistory: true,
+      showColorNumberPred: true,
+    },
+    isDefault: false,
+    isUnlocked: true,
+    created_at: '',
+  },
+];
 
 export default function App() {
   const [appTheme, setAppTheme] = useState<AppTheme>(getStoredTheme);
@@ -179,9 +366,14 @@ export default function App() {
     setGamesLoading(true);
     try {
       const res = await apiRequest<{ games: GameSummary[] }>('/api/games');
-      setGames(res.games);
-    } catch {
-      // keep current state
+      setGames(Array.isArray(res.games) ? res.games : []);
+    } catch (err) {
+      const isStaticHost =
+        err instanceof ApiError &&
+        (err.status === 404 || err.status === 405 || Boolean(err.data?.isStaticHtml));
+      if (isStaticHost) {
+        setGames((prev) => (prev.length > 0 ? prev : STATIC_PUBLIC_GAMES));
+      }
     } finally {
       setGamesLoading(false);
     }
@@ -765,7 +957,7 @@ export default function App() {
                         </div>
                       ) : (
                         <img
-                          src="/src/assets/images/porcelain_studio_hero_1795626990487.jpg"
+                          src={resolveAssetUrl('/src/assets/images/porcelain_studio_hero_1795626990487.jpg')}
                           alt="Porcelain architectural gaming studio"
                           referrerPolicy="no-referrer"
                           onError={() =>
@@ -784,7 +976,7 @@ export default function App() {
                           </div>
                         ) : (
                           <img
-                            src="/src/assets/images/vault_showcase_object_1795626989997.jpg"
+                            src={resolveAssetUrl('/src/assets/images/vault_showcase_object_1795626989997.jpg')}
                             alt="Precision game token sculpture"
                             referrerPolicy="no-referrer"
                             onError={() =>
@@ -1173,7 +1365,7 @@ export default function App() {
                                     </div>
                                   ) : (
                                     <img
-                                      src={game.thumbnail}
+                                      src={resolveAssetUrl(game.thumbnail)}
                                       alt={game.title}
                                       referrerPolicy="no-referrer"
                                       onError={() =>

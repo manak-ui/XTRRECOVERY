@@ -28,7 +28,7 @@ import {
   Megaphone,
   TrendingUp,
 } from 'lucide-react';
-import { apiRequest, formatCurrency, formatDateTime } from '../api';
+import { apiRequest, formatCurrency, formatDateTime, resolveAssetUrl } from '../api';
 import type {
   ActivityLog,
   AdminGame,
@@ -2806,7 +2806,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     >
                       <div className="aspect-[4/3] bg-[#eceae3] overflow-hidden border-b border-[#e6e3da]">
                         <img
-                          src={g.thumbnail}
+                          src={resolveAssetUrl(g.thumbnail)}
                           alt={g.title}
                           referrerPolicy="no-referrer"
                           className="w-full h-full object-cover"
